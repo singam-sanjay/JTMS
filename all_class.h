@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 
+using namespace std;
+
 enum STATUS { in, out};
 
 class NODE
