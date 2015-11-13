@@ -1,6 +1,6 @@
-vector<NODE> NODE::chk_exist_just()
+vector<string> NODE::chk_exist_just()
 {
-  vector<NODE> non_exstnt_just;
+  vector<string> non_exstnt_just;
   auto nodes_end = nodes.end();
   for( auto just : in )
   {
