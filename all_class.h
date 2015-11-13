@@ -15,6 +15,7 @@ class NODE
   vector<string> in, out; // Could change to set<string> to speed up search, although with costlier insertion, insertion happens only once
   int height;
   enum STATUS status;
+  bool propogate_reached;
 public:
   NODE( string _label )
   {
@@ -43,10 +44,32 @@ public:
   {
     return (find( out.begin(), out.end(), out_just )==out.end());
   }
-  string ret_label() const;
-  int ret_height() const;
-  void find_height();    // Finds the height of the node based on its justifications
-  enum STATUS ret_status() const;
+  void propogate_initialise()
+  {
+    propogate_reached = false;
+  }
+  void added_to_heap()
+  {
+    propogate_reached = true;
+  }
+  bool is_added_to_heap() const
+  {
+    return propogate_reached;
+  }
+  string ret_label() const
+  {
+    return label;
+  }
+  int ret_height() const
+  {
+    return height;
+  }
+  enum STATUS ret_status() const
+  {
+    return status;
+  }
+  int find_height();    // Finds the height of the node based on its justifications
+  void correct_and_propogate_height();
   void eval_status();
   bool chk_crculr();    // Check for circularities
   vector<string> chk_exist_just();// Check if the justifications exist, return those that don't exist
@@ -61,9 +84,8 @@ class PropNODE
 public:
   bool operator<( PropNODE other ) const
   {
-    return it->height < other.it->height || (it->height==other.it->height && it->label < other.it->label );
-    /* Could have sorted just according to height, but those nodes with the same height will be treated equal
-       and new nodes with the same height will not be inserted.*/
+    return it->height > other.it->height;
+    /* Since going to be using a max heap, the one with the least height should be at the top */
   }
   PropNODE( NODE* it_ )
   {
