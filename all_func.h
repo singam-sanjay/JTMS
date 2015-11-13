@@ -43,3 +43,94 @@ bool NODE::chk_crculr()
   }
   return false;
 }
+
+int NODE::ret_height() const
+{
+  return height;
+}
+
+void NODE::find_height()
+{
+  height = 0;
+  for( string in_just : in )
+  {
+    height = max( height, (nodes.find( NODE(in_just) ))->ret_height() );
+    // will always find in_just since node inserted only when supporting justifications are present
+  }
+  for( string out_just : out )
+  {
+    height = max( height, (nodes.find( NODE(out_just) ))->ret_height() );
+  }
+}
+
+enum STATUS NODE::ret_status() const
+{
+  return status;
+}
+
+string NODE::ret_label() const
+{
+  return label;
+}
+
+void NODE::eval_status()
+{
+  for( string in_just : in )
+  {
+    if( (nodes.find( NODE(in_just) ))->ret_status() != IN )
+    {  // will always find in_just since node inserted only when supporting justifications are present
+      status = OUT;
+      return;
+    }
+  }
+  for( string out_just : out )
+  {
+    if( (nodes.find( NODE(out_just) ))->ret_status() != OUT )
+    {
+      status = OUT;
+      return;
+    }
+  }
+  status = IN;
+}
+
+void propogate( NODE *proponent )
+{
+  set<PropNODE> TreeofProp = { PropNODE(proponent) };//MinHeap of PropNODEs based on their height and label
+  /* Without the label, the data structure would resemble a subset of the dependency tree. read bool PropNODE::operator<(PropNODE)*/
+
+  set<PropNODE>::iterator bottom = TreeofProp.begin();
+  TreeofProp.erase( bottom );
+  for( const NODE &node : nodes )
+  {
+    if( node.isIn_in( bottom->it->ret_label() ) || node.isIn_out( bottom->it->ret_label() ) )
+    {
+      NODE* ptr = (NODE*)(void*)&node;//Cheated here
+      ptr->find_height();
+      TreeofProp.erase( PropNODE( ptr ) );//erase if present
+      TreeofProp.insert( PropNODE( ptr ) );//insert to bring back the "min heap" condition
+    }
+  }
+  while( TreeofProp.size()>0 )
+  {
+    set<PropNODE>::iterator bottom = TreeofProp.begin();
+    TreeofProp.erase( bottom );
+    enum STATUS oldStatus = (bottom->it)->ret_status();
+    bottom->it->eval_status();
+    if( oldStatus==(bottom->it)->ret_status() )
+    {//Then nothing to propogate
+      continue;
+    }
+    for( const NODE &node : nodes )
+    {
+      if( node.isIn_in( bottom->it->ret_label() ) || node.isIn_out( bottom->it->ret_label() ) )
+      {
+        NODE* ptr = (NODE*)(void*)&node;//Cheated here
+        ptr->find_height();
+        TreeofProp.erase( PropNODE( ptr ) );//erase if present
+        TreeofProp.insert( PropNODE( ptr ) );//insert to bring back the "min heap" condition
+      }
+    }
+  }
+
+}
