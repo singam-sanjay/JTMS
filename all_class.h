@@ -68,8 +68,7 @@ public:
   {
     return status;
   }
-  int find_height();    // Finds the height of the node based on its justifications
-  void correct_and_propogate_height();
+  void eval_height();    // Finds the height of the node based on its justifications
   void eval_status();
   bool chk_crculr();    // Check for circularities
   vector<string> chk_exist_just();// Check if the justifications exist, return those that don't exist
@@ -84,7 +83,7 @@ class PropNODE
 public:
   bool operator<( PropNODE other ) const
   {
-    return it->height > other.it->height;
+    return it->height < other.it->height;
     /* Since going to be using a max heap, the one with the least height should be at the top */
   }
   PropNODE( NODE* it_ )
@@ -95,3 +94,8 @@ public:
 };
 
 void propogate( NODE *proponent );
+
+void handle_IS();
+void handle_STATE( vector<string> &in, vector<string> &out );
+void handle_LIST();
+void handle_HELP();

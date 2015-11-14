@@ -44,9 +44,9 @@ bool NODE::chk_crculr()
   return false;
 }
 
-int NODE::find_height()
+void NODE::eval_height()
 {
-  int height = 0;
+  height = 0;
   for( string in_just : in )
   {
     height = max( height, (nodes.find( NODE(in_just) ))->ret_height() );
@@ -59,24 +59,6 @@ int NODE::find_height()
   if( height!=0 )
   {
     height++;
-  }
-  return height;
-}
-
-void NODE::correct_and_propogate_height()
-{//Even this needs to follow the "tree"
-  int old_height = height;
-  height = find_height();
-  if( height!=old_height )
-  {
-    for( const NODE &node : nodes )
-    {
-      if( node.isIn_in( label ) || node.isIn_out( label ) )
-      {
-        NODE* ptr = (NODE*)(void*)&node;//Cheated here
-        ptr->correct_and_propogate_height();
-      }
-    }
   }
 }
 
@@ -103,25 +85,23 @@ void NODE::eval_status()
 
 void propogate( NODE *proponent )
 {
-  vector<PropNODE> heap_of_prop = { PropNODE(proponent) };
+  list<PropNODE> list_of_prop = { PropNODE(proponent) }, copy;
+  vector<PropNODE> sorted_prop;
+  string bottom_label;
+  PropNODE bottom = PropNODE(NULL);
 
   for( const NODE &node : nodes )
   {
     NODE* ptr = (NODE*)(void*)&node;//Cheated here
     ptr->propogate_initialise();
   }
-  while( heap_of_prop.size()>0 )
+
+  //Get dependency tree
+  while( list_of_prop.size()>0 )
   {
-    pop_heap( heap_of_prop.begin(), heap_of_prop.end() );
-    PropNODE bottom = heap_of_prop.back();
-    (bottom.it)->correct_and_propogate_height();
-    string bottom_label = (bottom.it)->ret_label();
-
-    enum STATUS oldStatus = (bottom.it)->ret_status();
-    (bottom.it)->eval_status();
-    if( )
-
-    heap_of_prop.pop_back();
+    bottom = list_of_prop.front();
+    copy.push_back(bottom);
+    bottom_label = (bottom.it)->ret_label();
 
     for( const NODE &node : nodes )
     {
@@ -130,52 +110,39 @@ void propogate( NODE *proponent )
         NODE* ptr = (NODE*)(void*)&node;//Cheated here
         if( (ptr->is_added_to_heap() ) == false )
         {
-          heap_of_prop.push_back( PropNODE(ptr) );
+          list_of_prop.push_back( PropNODE(ptr) );
           ptr->added_to_heap();
         }
       }
     }
 
-    max_heap( heap_of_prop.begin(), heap_of_prop.end() );
+    list_of_prop.pop_front();
   }
 
-/*
-  set<PropNODE> TreeofProp = { PropNODE(proponent) };//MinHeap of PropNODEs based on their height and label
-  // Without the label, the data structure would resemble a subset of the dependency tree. read bool PropNODE::operator<(PropNODE)
+  move( begin(copy), end(copy), back_inserter(sorted_prop) );
+  sort( begin(sorted_prop), end(sorted_prop) );
+  // sort take cares of dependency
 
-  set<PropNODE>::iterator bottom = TreeofProp.begin();
-  TreeofProp.erase( bottom );
-  for( const NODE &node : nodes )
+  for( PropNODE &node : sorted_prop )
   {
-    if( node.isIn_in( bottom->it->ret_label() ) || node.isIn_out( bottom->it->ret_label() ) )
-    {
-      NODE* ptr = (NODE*)(void*)&node;//Cheated here
-      ptr->find_height();
-      TreeofProp.erase( PropNODE( ptr ) );//erase if present
-      TreeofProp.insert( PropNODE( ptr ) );//insert to bring back the "min heap" condition
-    }
+    (node.it)->eval_status();
+    (node.it)->eval_height();
   }
-  while( TreeofProp.size()>0 )
-  {
-    set<PropNODE>::iterator bottom = TreeofProp.begin();
-    TreeofProp.erase( bottom );
-    enum STATUS oldStatus = (bottom->it)->ret_status();
-    bottom->it->eval_status();
-    if( oldStatus==(bottom->it)->ret_status() )
-    {//Then nothing to propogate
-      //Need to check if height changed
-      continue;
-    }
-    for( const NODE &node : nodes )
-    {
-      if( node.isIn_in( bottom->it->ret_label() ) || node.isIn_out( bottom->it->ret_label() ) )
-      {
-        NODE* ptr = (NODE*)(void*)&node;//Cheated here
-        ptr->find_height();
-        TreeofProp.erase( PropNODE( ptr ) );//erase if present
-        TreeofProp.insert( PropNODE( ptr ) );//insert to bring back the "min heap" condition
-      }
-    }
-  }
-*/
+}
+
+void handle_IS()
+{
+
+}
+void handle_STATE( vector<string> &in, vector<string> &out )
+{
+
+}
+void handle_LIST()
+{
+
+}
+void handle_HELP()
+{
+
 }
