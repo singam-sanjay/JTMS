@@ -132,9 +132,23 @@ void propogate( NODE *proponent )
 
 void handle_IS()
 {
+  string label;
+  set<NODE>::iterator search_iter;
 
+  cin >> label;
+  search_iter = nodes.find( NODE(label) );
+  if( search_iter==nodes.end() )
+  {
+    cout << "\"" << label << "\" not found.\n";
+  }
+  else
+  {
+    cout << ( search_iter->ret_status()==IN ? "IN\n" : "OUT\n");
+  }
+  cin.ignore( std::numeric_limits<std::streamsize>::max(), '\n');
 }
-void handle_STATE( vector<string> &in, vector<string> &out )
+
+void handle_STATE( string &label, vector<string> &in, vector<string> &out )
 {
 
 }

@@ -29,7 +29,8 @@ int main()
     else if( inp=="STATE" )
     {
       vector<string> in, out;
-      handle_STATE( in, out );
+      string label;
+      handle_STATE( label, in, out );
     }
   }while( true );
   return 0;
