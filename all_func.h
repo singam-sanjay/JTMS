@@ -63,6 +63,10 @@ void NODE::eval_height()
 
 void NODE::eval_status()
 {
+  if( in.size()==0 && out.size()==0 )
+  {//If a premise
+    return;
+  }
   for( string in_just : in )
   {
     if( (nodes.find( NODE(in_just) ))->ret_status() != IN )
@@ -130,7 +134,7 @@ void propogate( NODE *proponent )
 }
 
 bool is_KEYWORD( string label )
-{/*  KEYWORDS : STATE LIST IS ALL HELP IN OUT END */
+{/*  KEYWORDS : STATE LIST IS ALL HELP IN OUT END NOT */
   static set<string> KEYWORDS = { "STATE", "LIST", "IS", "ALL", "HELP", "IN", "OUT", "END", "NOT" };
   return KEYWORDS.find( label )!=KEYWORDS.end();
 }
@@ -150,7 +154,6 @@ void handle_IS()
   {
     cout << ( search_iter->ret_status()==IN ? "IN\n" : "OUT\n");
   }
-  cin.ignore( std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum STATUS &status )
@@ -192,25 +195,21 @@ bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum 
       cin >> str;
     }
     if( in.size()>0 && out.size()>0 )
-    {
+    {//To detect common nodes
       vector<string> intrsc;
       set_intersection( in.begin(), in.end(), out.begin(), out.end(), back_inserter(intrsc) );
       if( intrsc.size()>0 )
       {
-        cout << "Commons nodes in IN and OUT of " << label << ".\n";
-        for( string common_just : intrsc )
-        {
-          cout << common_just << ' ';
-        } cout << '\n';
+        cout << "Commons nodes in in_justs and out_justs of " << label << ":";for( string common_just : intrsc ){ cout << ' '<< common_just;}cout << '\n';
         return true;
       }
     }
-    if( must_swap )
+    cout << "Non intersecting in_justs and out_justs.\n";
+    if( must_swap && ( in.size()>0 || out.size()>0 ) )
     {//Since when notted, the in_justs become out_just and vice versa
       swap( in, out );
-      cout << "Swapped in_justs and out_justs";
+      cout << "Swapped in_justs and out_justs.\n";
     }
-    cout << "Non intersecting IN and OUT.\n";
   }
   else
   {
@@ -221,7 +220,6 @@ bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum 
   return false;
 }
 
-
 bool try_insert( string &label, vector<string> &in, vector<string> &out, enum STATUS &status )
 {
   //bool problem = false;
@@ -231,12 +229,7 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
   justs = node.chk_exist_just();
   if( justs.size()>0 )
   {
-    cout << "Missing justifications\n";
-    for( string str : justs )
-    {
-      cout << str << ' ';
-    }
-    cout << '\n';
+    cout << "Missing justifications:";for( string str : justs ){ cout << ' ' << str; }cout << '\n';
     return true;
   }
 
@@ -250,7 +243,7 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
     if( (ret_int=nodes.erase( node ))!=1 )
     {
       cerr << "erase returned something other than 1 " << ret_int << '\n';
-
+      exit(11);
     }
     else
     {
@@ -263,10 +256,7 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
   else
   {
     node.eval_height();
-    if( in.size()!=0 || out.size()!=0 )
-    {//If not a premise
-      node.eval_status();
-    }
+    node.eval_status();
     cout << "Inserting new statement.\n";
     nodes.insert( node );
   }
@@ -283,8 +273,8 @@ void handle_LIST()
     for( const NODE &node : nodes )
     {
       cout << node.ret_label() << ":(" << ( node.ret_status()==IN ? "IN" : "OUT" )<< ")\n";
-      cout << "in_justs:";for( string in_just : node.ret_in() )cout << in_just << ' ';cout << '\n';
-      cout << "out_justs:";for( string out_just : node.ret_out() )cout << out_just << ' ';cout << '\n';
+      cout << "in_justs:";for( string in_just : node.ret_in() )cout << ' ' << in_just ;cout << '\n';
+      cout << "out_justs:";for( string out_just : node.ret_out() )cout << ' ' << out_just ;cout << "\n\n";
     }
   }
   else
@@ -294,8 +284,8 @@ void handle_LIST()
     {
       const NODE &node = *node_iter;
       cout << node.ret_label() << ":(" << ( node.ret_status()==IN ? "IN" : "OUT" )<< ")\n";
-      cout << "in_justs:";for( string in_just : node.ret_in() )cout << in_just << ' ';cout << '\n';
-      cout << "out_justs:";for( string out_just : node.ret_out() )cout << out_just << ' ';cout << '\n';
+      cout << "in_justs:";for( string in_just : node.ret_in() )cout << ' ' << in_just ;cout << '\n';
+      cout << "out_justs:";for( string out_just : node.ret_out() )cout << ' ' << out_just ;cout << "\n\n";
     }
     else
     {
@@ -307,8 +297,8 @@ void handle_LIST()
 void handle_HELP()
 {
   cout << "HELP:\n"
-          "LIST label/ALL\n"
-          "STATE [NOT] label IN [just] OUT [just] END\n"
-          "IS label\n"
-          "QUIT\n";
+          "LIST label/ALL : list details about a label or ALL of them\n"
+          "STATE [NOT] label IN [just] OUT [just] END : add a statement\n"
+          "IS label : check the validity of a label\n"
+          "QUIT : quit the program\n";
 }
