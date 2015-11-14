@@ -7,6 +7,7 @@ int main()
 
   do
   {
+    cin.ignore( std::numeric_limits<std::streamsize>::max(), '\n');
     cout << "> ";
     cin >> inp;
     if( inp=="QUIT" )

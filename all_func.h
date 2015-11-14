@@ -131,7 +131,7 @@ void propogate( NODE *proponent )
 }
 
 void handle_IS()
-{
+{//IS label
   string label;
   set<NODE>::iterator search_iter;
 
@@ -148,10 +148,96 @@ void handle_IS()
   cin.ignore( std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-void handle_STATE( string &label, vector<string> &in, vector<string> &out )
-{
+bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum STATUS &status )
+{// STATE [NOT] label IN OUT END
+  string str;
+  bool must_swap;
 
+  cin >> str;
+  if( str=="NOT" )
+  {
+    must_swap = true;
+    cin >> label; // need to get label
+  }
+  else
+  {
+    must_swap = false;
+    label = str;
+  }
+  if( str=="IN" )
+  {
+    cin >> str;
+    while( str!="OUT" )
+    {
+      in.push_back( string(str) );
+      cin >> str;
+    }
+    while( str!="END" )
+    {
+      out.push_back( string(str) );
+      cin >> str;
+    }
+    if( in.size()>0 && out.size()>0 )
+    {
+      vector<string> intrsc;
+      set_intersection( in.begin(), in.end(), out.begin(), out.end(), back_inserter(intrsc) );
+      if( intrsc.size()>0 )
+      {
+        cout << "Commons nodes in IN and OUT of " << label << ".\n";
+        for( string common_just : intrsc )
+        {
+          cout << common_just << ' ';
+        } cout << '\n';
+        return true;
+      }
+    }
+    if( must_swap )
+    {//Since when notted, the in_justs become out_just and vice versa
+      swap( in, out );
+      cout << "Swapped in_justs and out_justs"
+    }
+    cout << "Non intersecting IN and OUT.\n";
+  }
+  else
+  {
+    cout << "Wrong format.\n";
+    return true;
+  }
+
+  return false;
 }
+
+
+bool try_insert( string &label, vector<string> &in, vector<string> &out, enum STATUS status )
+{
+  bool problem = false;
+  //Check if IN justs are present
+  for( string str : in )
+  {
+    if( nodes.find( NODE(str) )==nodes.end() )
+    {
+      cout << "IN::" << label << " not found.\n";
+      problem = true;
+    }
+  }
+  //Check if OUT justs are present
+  for( string str : out )
+  {
+    if( nodes.find( NODE(str) )==nodes.end() )
+    {
+      cout << "OUT::" << label << " not found.\n";
+      problem =  true;
+    }
+  }
+  if( problem )
+  {
+    return true;
+  }
+
+  //Need to insert over here
+  return false;
+}
+
 void handle_LIST()
 {
 
