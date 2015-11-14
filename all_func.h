@@ -212,33 +212,47 @@ bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum 
 }
 
 
-bool try_insert( string &label, vector<string> &in, vector<string> &out, enum STATUS status )
+bool try_insert( string &label, vector<string> &in, vector<string> &out, enum STATUS &status )
 {
-  bool problem = false;
-  //Check if IN justs are present
-  for( string str : in )
+  //bool problem = false;
+  NODE node( label, status, in, out );
+  vector<string> justs;
+
+  justs = node.chk_exist_just();
+  if( justs.size()>0 )
   {
-    if( nodes.find( NODE(str) )==nodes.end() )
+    cout << "Missing justifications\n";
+    for( string str : justs )
     {
-      cout << "IN::" << str << " not found.\n";
-      problem = true;
+      cout << str << ' ';
     }
-  }
-  //Check if OUT justs are present
-  for( string str : out )
-  {
-    if( nodes.find( NODE(str) )==nodes.end() )
-    {
-      cout << "OUT::" << str << " not found.\n";
-      problem =  true;
-    }
-  }
-  if( problem )
-  {
+    cout << '\n';
     return true;
   }
 
-  //Need to insert over here
+  if( nodes.find( node )!=nodes.end() )
+  {
+    if( node.chk_crculr()==true )
+    {
+      cout << "Creating circularities.\n";//Later add the created dependency
+      return true;
+    }
+    cout << "Replacing old statement.\n";
+    nodes.erase( node );
+    nodes.insert( node );
+    NODE* ptr = (NODE*)(void*)(&(*nodes.find( node )));
+    propogate( ptr );
+  }
+  else
+  {
+    node.eval_height();
+    if( in.size()!=0 || out.size()!=0 )
+    {//If not a premise
+      node.eval_status();
+    }
+    cout << "Inserting new statement.\n";
+    nodes.insert( node );
+  }
   return false;
 }
 
