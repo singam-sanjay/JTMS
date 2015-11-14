@@ -156,14 +156,17 @@ bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum 
   cin >> str;
   if( str=="NOT" )
   {
+    status = OUT; //Need this in case in_justs == out_justs == {}
     must_swap = true;
     cin >> label; // need to get label
   }
   else
   {
+    status = IN;
     must_swap = false;
     label = str;
   }
+  cin >> str;
   if( str=="IN" )
   {
     cin >> str;
@@ -172,6 +175,7 @@ bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum 
       in.push_back( string(str) );
       cin >> str;
     }
+    cin >> str;
     while( str!="END" )
     {
       out.push_back( string(str) );
@@ -194,7 +198,7 @@ bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum 
     if( must_swap )
     {//Since when notted, the in_justs become out_just and vice versa
       swap( in, out );
-      cout << "Swapped in_justs and out_justs"
+      cout << "Swapped in_justs and out_justs";
     }
     cout << "Non intersecting IN and OUT.\n";
   }
@@ -216,7 +220,7 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
   {
     if( nodes.find( NODE(str) )==nodes.end() )
     {
-      cout << "IN::" << label << " not found.\n";
+      cout << "IN::" << str << " not found.\n";
       problem = true;
     }
   }
@@ -225,7 +229,7 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
   {
     if( nodes.find( NODE(str) )==nodes.end() )
     {
-      cout << "OUT::" << label << " not found.\n";
+      cout << "OUT::" << str << " not found.\n";
       problem =  true;
     }
   }
