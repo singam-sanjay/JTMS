@@ -96,6 +96,6 @@ public:
 void propogate( NODE *proponent );
 
 void handle_IS();
-void handle_STATE( vector<string> &in, vector<string> &out );
+bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum STATUS &status );
 void handle_LIST();
 void handle_HELP();

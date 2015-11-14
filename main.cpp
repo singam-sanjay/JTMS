@@ -30,7 +30,15 @@ int main()
     {
       vector<string> in, out;
       string label;
-      handle_STATE( label, in, out );
+      enum STATUS status;
+      if( handle_STATE( label, in, out, status ) )
+      {
+        continue;
+      }
+      if( try_insert( label, in, out, status ) )
+      {
+        continue;
+      }
     }
   }while( true );
   return 0;
