@@ -47,6 +47,8 @@ bool NODE::chk_crculr()
 void NODE::eval_height()
 {
   height = 0;
+  if( in.size()==0 && out.size()==0 )
+    return;
   for( string in_just : in )
   {
     height = max( height, (nodes.find( NODE(in_just) ))->ret_height() );
@@ -56,10 +58,7 @@ void NODE::eval_height()
   {
     height = max( height, (nodes.find( NODE(out_just) ))->ret_height() );
   }
-  if( height!=0 )
-  {
-    height++;
-  }
+  height++;
 }
 
 void NODE::eval_status()
@@ -132,7 +131,7 @@ void propogate( NODE *proponent )
 
 bool is_KEYWORD( string label )
 {/*  KEYWORDS : STATE LIST IS ALL HELP IN OUT END */
-  static set<string> KEYWORDS = { "STATE", "LIST", "IS", "ALL", "HELP", "IN", "OUT", "END" };
+  static set<string> KEYWORDS = { "STATE", "LIST", "IS", "ALL", "HELP", "IN", "OUT", "END", "NOT" };
   return KEYWORDS.find( label )!=KEYWORDS.end();
 }
 
@@ -227,7 +226,7 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
 {
   //bool problem = false;
   NODE node( label, status, in, out );
-  vector<string> justs;
+  vector<string> justs; int ret_int;
 
   justs = node.chk_exist_just();
   if( justs.size()>0 )
@@ -248,8 +247,15 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
       cout << "Creating circularities.\n";//Later add the created dependency
       return true;
     }
-    cout << "Replacing old statement.\n";
-    nodes.erase( node );
+    if( (ret_int=nodes.erase( node ))!=1 )
+    {
+      cerr << "erase returned something other than 1 " << ret_int << '\n';
+
+    }
+    else
+    {
+      cout << "Replacing old statement.\n";
+    }
     nodes.insert( node );
     NODE* ptr = (NODE*)(void*)(&(*nodes.find( node )));
     propogate( ptr );
