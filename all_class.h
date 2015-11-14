@@ -92,7 +92,7 @@ public:
   bool operator<( PropNODE other ) const
   {
     return it->height < other.it->height;
-    /* Since going to be using a max heap, the one with the least height should be at the top */
+    /* Since going to be using a sorted, the one with the least height should be first */
   }
   PropNODE( NODE* it_ )
   {

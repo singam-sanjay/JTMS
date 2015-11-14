@@ -51,12 +51,12 @@ void NODE::eval_height()
     return;
   for( string in_just : in )
   {
-    height = max( height, (nodes.find( NODE(in_just) ))->ret_height() );
+    height = max( height, (nodes.find( NODE(in_just) ))->height );
     // will always find in_just since node inserted only when supporting justifications are present
   }
   for( string out_just : out )
   {
-    height = max( height, (nodes.find( NODE(out_just) ))->ret_height() );
+    height = max( height, (nodes.find( NODE(out_just) ))->height );
   }
   height++;
 }
@@ -69,7 +69,7 @@ void NODE::eval_status()
   }
   for( string in_just : in )
   {
-    if( (nodes.find( NODE(in_just) ))->ret_status() != IN )
+    if( (nodes.find( NODE(in_just) ))->status != IN )
     {  // will always find in_just since node inserted only when supporting justifications are present
       status = OUT;
       return;
@@ -77,7 +77,7 @@ void NODE::eval_status()
   }
   for( string out_just : out )
   {
-    if( (nodes.find( NODE(out_just) ))->ret_status() != OUT )
+    if( (nodes.find( NODE(out_just) ))->status != OUT )
     {
       status = OUT;
       return;
