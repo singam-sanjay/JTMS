@@ -5,6 +5,7 @@ int main()
 {
   string inp;
 
+  cin.putback('\n');//feed '\n' to th first cin.ignore()
   do
   {
     cin.ignore( std::numeric_limits<std::streamsize>::max(), '\n');
