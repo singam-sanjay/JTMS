@@ -46,11 +46,11 @@ public:
   }
   bool isIn_in( string in_just ) const
   {
-    return (find( in.begin(), in.end(), in_just )==in.end());
+    return (find( in.begin(), in.end(), in_just )!=in.end());
   }
   bool isIn_out( string out_just ) const
   {
-    return (find( out.begin(), out.end(), out_just )==out.end());
+    return (find( out.begin(), out.end(), out_just )!=out.end());
   }
   void propogate_initialise()
   {
