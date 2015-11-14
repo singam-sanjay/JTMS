@@ -36,6 +36,14 @@ public:
   {
     return label == other.label;
   }
+  vector<string> ret_in() const
+  {
+    return in;
+  }
+  vector<string> ret_out() const
+  {
+    return out;
+  }
   bool isIn_in( string in_just ) const
   {
     return (find( in.begin(), in.end(), in_just )==in.end());
@@ -95,6 +103,7 @@ public:
 
 void propogate( NODE *proponent );
 
+bool is_KEYWORD();
 void handle_IS();
 bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum STATUS &status );
 void handle_LIST();

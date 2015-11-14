@@ -130,6 +130,12 @@ void propogate( NODE *proponent )
   }
 }
 
+bool is_KEYWORD( string label )
+{/*  KEYWORDS : STATE LIST IS ALL HELP IN OUT END */
+  static set<string> KEYWORDS = { "STATE", "LIST", "IS", "ALL", "HELP", "IN", "OUT", "END" };
+  return KEYWORDS.find( label )!=KEYWORDS.end();
+}
+
 void handle_IS()
 {//IS label
   string label;
@@ -165,6 +171,11 @@ bool handle_STATE( string &label, vector<string> &in, vector<string> &out, enum 
     status = IN;
     must_swap = false;
     label = str;
+  }
+  if( is_KEYWORD(label) )
+  {
+    cout << "The given label is a KEYWORD.\n";
+    return true;
   }
   cin >> str;
   if( str=="IN" )
@@ -257,10 +268,41 @@ bool try_insert( string &label, vector<string> &in, vector<string> &out, enum ST
 }
 
 void handle_LIST()
-{
+{//LIST label/ALL
+  string label;
 
+  cin >> label;
+  if( label=="ALL" )
+  {
+    for( const NODE &node : nodes )
+    {
+      cout << node.ret_label() << ":(" << ( node.ret_status()==IN ? "IN" : "OUT" )<< ")\n";
+      cout << "in_justs:";for( string in_just : node.ret_in() )cout << in_just << ' ';cout << '\n';
+      cout << "out_justs:";for( string out_just : node.ret_out() )cout << out_just << ' ';cout << '\n';
+    }
+  }
+  else
+  {
+    set<NODE>::iterator node_iter = nodes.find( NODE(label) );
+    if( node_iter!=nodes.end() )
+    {
+      const NODE &node = *node_iter;
+      cout << node.ret_label() << ":(" << ( node.ret_status()==IN ? "IN" : "OUT" )<< ")\n";
+      cout << "in_justs:";for( string in_just : node.ret_in() )cout << in_just << ' ';cout << '\n';
+      cout << "out_justs:";for( string out_just : node.ret_out() )cout << out_just << ' ';cout << '\n';
+    }
+    else
+    {
+      cout << label << " not found.\n";
+    }
+  }
 }
+
 void handle_HELP()
 {
-
+  cout << "HELP:\n"
+          "LIST label/ALL\n"
+          "STATE [NOT] label IN [just] OUT [just] END\n"
+          "IS label\n"
+          "QUIT\n";
 }
